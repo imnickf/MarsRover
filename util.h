@@ -1,3 +1,6 @@
+#ifndef UTIL_H
+# define UTIL_H
+
 /// Blocks for a specified number of milliseconds
 void wait_ms(unsigned int time_val);
 
@@ -44,3 +47,5 @@ void ADC_init(void);
 int ADC_read(void);
 
 int getIrDistance(void);
+
+#endif
