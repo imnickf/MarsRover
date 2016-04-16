@@ -76,7 +76,6 @@ void getCommand(oi_t *sensor_data)
 			case 's':			// Scan for objects
 				foundObjects = scanForObjects();
 				commandRecieved = 1;
-				lprintf("Object 1 Diameter: %d", foundObjects[0].diameter);
 				free(foundObjects);
 				break;
 			default:
@@ -89,14 +88,15 @@ object_t * scanForObjects()
 {
 	int sonarDistance =0;
 	int irDistance = 0;
+	/*
 	char heading[]="\r\nDegrees\t     IRDistance\tSonarDistance";   //   \r\n for new line, \t and spaces to line up text and numbers on output
 	char output[50];
-
+	*/
 	int currObjectIndex = -1;
-	int currDiam = 0;
-	int smallestObjectIndex = 0;
-	int smallestDiam = 0;
-	int smallestLocation = 0;
+	//int currDiam = 0;
+	//int smallestObjectIndex = 0;
+	//int smallestDiam = 0;
+	//int smallestLocation = 0;
 	int inObject = 0;
 	int lastIRDistance = 0;
 	int firstDegrees = 0;
@@ -108,9 +108,11 @@ object_t * scanForObjects()
 
 	while(degrees <= 180)
     {
+		/*
 		for(int i = 0; i < strlen(heading); i++) {     //  Put this inside loop so it would reprint for each iteration
 			USART_Transmit(heading[i]);
 		}
+		*/
 		
 		move_servo(degrees);
 		wait_ms(800);									//  Allows time for servo to move back to the 0 position
@@ -120,11 +122,13 @@ object_t * scanForObjects()
 			sonarDistance = getPingDistance();
 			irDistance = getIrDistance();			
 			
+			/*
 			sprintf(output,"\r\n%d\t\t%d\t\t%d", degrees, irDistance, sonarDistance);  //  \r\n is new line characters. \t is used to line up numbers 
 					
 			for(int i = 0; i < strlen(output); i++){		//  Print output data
 				USART_Transmit(output[i]);				
 			}											
+			*/
 							
 			if(irDistance <= 100 && inObject == 0){			// Going into object
 				inObject = 1;								// Sensor is now detecting an object
@@ -145,5 +149,14 @@ object_t * scanForObjects()
 			wait_ms(200);
 		}
     }
+	
+	for (int i = 0; i < currObjectIndex; i++) {
+		char output[30];
+		sprintf(output, "Diameter: %2d Angle: %3d\r\n", foundObjects[i].diameter, foundObjects[i].location);
+		
+		for(int i = 0; i < strlen(output); i++){		//  Transmit object data
+			USART_Transmit(output[i]);
+		}
+	}
 	return objects;
 }
