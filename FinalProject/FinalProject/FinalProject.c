@@ -152,7 +152,7 @@ object_t * scanForObjects()
 	
 	for (int i = 0; i < currObjectIndex; i++) {
 		char output[30];
-		sprintf(output, "Diameter: %2d Angle: %3d\r\n", foundObjects[i].diameter, foundObjects[i].location);
+		sprintf(output, "Diameter: %2d Angle: %3d\r\n", objects[i].diameter, objects[i].location);
 		
 		for(int i = 0; i < strlen(output); i++){		//  Transmit object data
 			USART_Transmit(output[i]);

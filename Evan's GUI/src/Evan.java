@@ -1,9 +1,7 @@
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintWriter;
 
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -157,6 +155,31 @@ public class Evan {
 		cliffSignalsValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 10 + insets.top + moveButton.getY() + moveButton.getHeight(), 200, size.height);
 		
 		window.setVisible(true);
+		
+		SerialPort port8 = SerialPort.getCommPort("COM8");
+		port8.openPort();
+		port8.addDataListener(new SerialPortDataListener() {
+			@Override public int getListeningEvents() {
+				return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+			}
+			@Override public void serialEvent(SerialPortEvent event) {
+				if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
+					return;
+				}
+				byte[] newData = new byte[port8.bytesAvailable()];
+				int numRead = port8.readBytes(newData, newData.length);
+				System.out.println("Read " + numRead + " bytes.");
+			}
+		});
+		/*
+		Thread readThread = new Thread() {
+			@Override public void run() {
+				try {readThread.sleep(100);} catch(Exception e) {}
+				
+				
+			}
+		};
+		*/
 	}
 
 }
