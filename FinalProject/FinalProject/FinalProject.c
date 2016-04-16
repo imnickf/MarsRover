@@ -62,6 +62,7 @@ void getCommand(oi_t *sensor_data)
 				int degrees = atoi(angleString);
 				lprintf("Degrees: %d", degrees);
 				turn_clockwise(sensor_data, degrees);
+				transmitSensorData(sensor_data);
 				commandRecieved = 1;
 				break;
 			case 'm':			// Move iRobot
@@ -71,10 +72,12 @@ void getCommand(oi_t *sensor_data)
 				int distance = atoi(distanceString);
 				lprintf("Distance: %d", distance);
 				move_forward(sensor_data, distance);
+				transmitSensorData(sensor_data);
 				commandRecieved = 1;
 				break;
 			case 's':			// Scan for objects
 				foundObjects = scanForObjects();
+				transmitSensorData(sensor_data);
 				commandRecieved = 1;
 				free(foundObjects);
 				break;
