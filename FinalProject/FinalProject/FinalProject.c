@@ -84,6 +84,26 @@ void getCommand(oi_t *sensor_data)
 	}
 }
 
+void transmitSensorData(oi_t *sensor_data)
+{
+	char bumpSensors[50], cliffSensors[100], cliffSignals[100];
+	sprintf(bumpSensors, "Bump Sensor (r, l) values: R: %d, L: %d\r\n", sensor_data->bumper_right, sensor_data->bumper_left);
+	sprintf(cliffSensors, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n", sensor_data->cliff_left, sensor_data->cliff_frontleft, sensor_data->cliff_frontright, sensor_data->cliff_right);
+	sprintf(cliffSignals, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n", sensor_data->cliff_left_signal, sensor_data->cliff_frontleft_signal, sensor_data->cliff_frontright_signal, sensor_data->cliff_right_signal);
+	
+	for(int i = 0; i < strlen(bumpSensors); i++) {
+		USART_Transmit(bumpSensors[i]);
+	}
+	
+	for(int i = 0; i < strlen(cliffSensors); i++) {	
+		USART_Transmit(cliffSensors[i]); 
+	}
+	
+	for(int i = 0; i < strlen(cliffSignals); i++) {	
+		USART_Transmit(cliffSignals[i]);
+	}
+}
+
 object_t * scanForObjects()
 {
 	int sonarDistance =0;
@@ -149,6 +169,11 @@ object_t * scanForObjects()
 			wait_ms(200);
 		}
     }
+	
+	char heading[] = "Found objects\r\n";
+	for(int i = 0; i < strlen(heading); i++) {     
+		USART_Transmit(heading[i]);
+	}
 	
 	for (int i = 0; i < currObjectIndex; i++) {
 		char output[30];
