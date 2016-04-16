@@ -5,12 +5,12 @@ void move_forward(oi_t *sensor, int centimeters)
 	int sum = 0;
 	oi_set_wheels(200, 200); // move forward
 	while (sum < centimeters * 10) {
-		if (sensor->bumper_left || sensor->bumper_right) {
+		if (sensor->bumper_left || sensor->bumper_right || sensor->cliff_left || sensor->cliff_right || sensor->cliff_frontleft || sensor ->cliff_frontright) {
 			move_backward(sensor, 15);
-			turn_clockwise(sensor, 87);
-			move_forward(sensor, 25);
-			turn_counterClockwise(sensor, 87);
-			move_forward(sensor, (centimeters - (sum / 10)));
+			//turn_clockwise(sensor, 87);
+			//move_forward(sensor, 25);
+			//turn_counterClockwise(sensor, 87);
+			//move_forward(sensor, (centimeters - (sum / 10)));
 			break;
 		}
 		oi_update(sensor);
