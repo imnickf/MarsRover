@@ -2,27 +2,22 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.InputStream;
-import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.text.DefaultCaret;
 
 import com.fazecast.jSerialComm.*;
 
 public class Evan {
 
 	public static void main(String[] args) 
-	{
-		SerialPort[] ports = SerialPort.getCommPorts();
-		for(int i = 0; i < ports.length; i++) {
-			System.out.println(ports[i].getSystemPortName());
-		}
-				
+	{	
 		SerialPort port = SerialPort.getCommPort("COM8");
 		port.setComPortParameters(38400, 8, 2, SerialPort.NO_PARITY);
 		port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_SEMI_BLOCKING, 0, 0);
@@ -31,7 +26,7 @@ public class Evan {
 		// Create and configure window
 		JFrame window = new JFrame();
 		window.setTitle("The Amazing GUI of Evan");
-		window.setSize(700, 400);
+		window.setSize(500, 400);
 		window.setLayout(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -40,15 +35,6 @@ public class Evan {
 		JLabel scanLabel = new JLabel("Scan for objects");
 		JLabel objectsLabel = new JLabel("Found objects and Sensor Values");
 		
-		/*
-		JLabel bumpSensorsLabel = new JLabel("Bump Sensor (r, l) values:");
-		JLabel cliffSensorsLabel = new JLabel("Cliff Sensor (l, fl, fr, r) values:");
-		JLabel cliffSignalsLabel = new JLabel ("Cliff Sensor (l, fl, fr, r) values:");
-		
-		JLabel bumpSensorValues = new JLabel("R: 0, L: 0");
-		JLabel cliffSensorsValues = new JLabel("L: 0, FL: 0, FR: 0, R: 0");
-		JLabel cliffSignalsValues = new JLabel ("L: 0, FL: 0, FR: 0, R: 0");
-		*/
 		JButton moveButton = new JButton("Move!");
 		JButton rotateButton = new JButton("Rotate!");
 		JButton scanButton = new JButton("Scan!");
@@ -57,6 +43,12 @@ public class Evan {
 		JFormattedTextField rotateField = new JFormattedTextField();
 		
 		JTextArea objectDisplay = new JTextArea();
+		
+		JScrollPane scrollDisplay = new JScrollPane(objectDisplay);
+		scrollDisplay.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		DefaultCaret caret = (DefaultCaret)objectDisplay.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
 		moveField.setValue(new Integer(90));
 		moveField.setColumns(5);
@@ -74,7 +66,13 @@ public class Evan {
 		
 		rotateButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
-				String outputString = "r" + rotateField.getValue();
+				
+				String rotateValue = "" + rotateField.getValue();
+				String outputString = "r";
+				if (rotateValue.length() == 2) {
+					outputString += "0";
+				}
+				outputString += rotateField.getValue();
 				System.out.println(outputString);
 				byte toSend[] = outputString.getBytes();
 				port.writeBytes(toSend, toSend.length);
@@ -84,7 +82,6 @@ public class Evan {
 		
 		scanButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
-				objectDisplay.setText("");
 				String outputString = "s";
 				System.out.println(outputString);
 				byte toSend[] = outputString.getBytes();
@@ -102,16 +99,8 @@ public class Evan {
 		window.add(scanLabel);
 		window.add(scanButton);
 		window.add(objectsLabel);
-		window.add(objectDisplay);
-		/*
-		window.add(bumpSensorsLabel);
-		window.add(cliffSensorsLabel);
-		window.add(cliffSignalsLabel);
-		
-		window.add(bumpSensorValues);
-		window.add(cliffSensorsValues);
-		window.add(cliffSignalsValues);
-		*/
+		window.add(scrollDisplay);
+	
 		Insets insets = window.getInsets();
 		Dimension size = rotateLabel.getPreferredSize();
 		
@@ -135,21 +124,8 @@ public class Evan {
 		
 		size = objectsLabel.getPreferredSize();
 		objectsLabel.setBounds(10 + insets.left, 10 + insets.top + scanButton.getY() + scanButton.getHeight(), size.width, size.height);
-		objectDisplay.setBounds(10 + insets.left, 10 + insets.top + objectsLabel.getY() + objectsLabel.getHeight(), 400, 200);
-		/*
-		size = bumpSensorsLabel.getPreferredSize();
-		bumpSensorsLabel.setBounds(30 + rotateButton.getX() + rotateButton.getWidth(), 10 + insets.top, size.width, size.height);
+		scrollDisplay.setBounds(10 + insets.left, 10 + insets.top + objectsLabel.getY() + objectsLabel.getHeight(), 400, 200);
 		
-		size = cliffSensorsLabel.getPreferredSize();
-		cliffSensorsLabel.setBounds(30 + rotateButton.getX() + rotateButton.getWidth(), 20 + insets.top + rotateButton.getHeight(), size.width, size.height);
-		
-		size = cliffSignalsLabel.getPreferredSize();
-		cliffSignalsLabel.setBounds(30 + rotateButton.getX() + rotateButton.getWidth(), 10 + insets.top + moveButton.getY() + moveButton.getHeight(), size.width, size.height);
-		
-		bumpSensorValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 10 + insets.top, 200, size.height);
-		cliffSensorsValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 20 + insets.top + rotateButton.getHeight(), 200, size.height);
-		cliffSignalsValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 10 + insets.top + moveButton.getY() + moveButton.getHeight(), 200, size.height);
-		*/
 		window.setVisible(true);
 		
 		
@@ -165,10 +141,8 @@ public class Evan {
 				byte[] newData = new byte[port.bytesAvailable()];
 				int numRead = port.readBytes(newData, newData.length);
 				System.out.println("Read " + numRead + " bytes.");
-				System.out.println(new String(newData));
 				objectDisplay.append(new String(newData));
 			}
 		});
 	}
-
 }
