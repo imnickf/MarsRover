@@ -20,6 +20,7 @@
 typedef struct object {
 	int diameter;
 	int location;
+	int distance;
 } object_t;
 
 void getCommand(oi_t *sensor_data);
@@ -37,6 +38,15 @@ int main(void)
 	
 	oi_t *sensor_data = oi_alloc();
 	oi_init(sensor_data);
+	
+	unsigned char notes[12]    = {98, 103, 105, 108, 107, 105, 103, 103, 98, 103, 105, 105};
+	unsigned char duration[12] = {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 256};
+	
+// 	unsigned char notes[26]  = {72, 67, 69, 67,  0, 72, 67, 69, 67,  0, 72, 72, 72, 72,  0, 72, 72, 72, 72,  0, 72, 71, 72, 71, 72};
+// 	unsigned char duration[26]={64, 16, 16, 16, 40, 64, 16, 16, 16, 40, 8,   8, 16, 16, 16, 8,   8, 16, 16, 16, 20, 20, 32, 20, 96};
+ 		
+	oi_load_song(0, 12, notes, duration);
+	oi_play_song(0);
 	
 	while(1)
     {
@@ -90,9 +100,9 @@ void getCommand(oi_t *sensor_data)
 void transmitSensorData(oi_t *sensor_data)
 {
 	char bumpSensors[50], cliffSensors[100], cliffSignals[100];
-	sprintf(bumpSensors, "Bump Sensor (r, l) values: R: %d, L: %d\r\n", sensor_data->bumper_right, sensor_data->bumper_left);
+	sprintf(bumpSensors, "\r\nBump Sensor (r, l) values: R: %d, L: %d\r\n", sensor_data->bumper_right, sensor_data->bumper_left);
 	sprintf(cliffSensors, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n", sensor_data->cliff_left, sensor_data->cliff_frontleft, sensor_data->cliff_frontright, sensor_data->cliff_right);
-	sprintf(cliffSignals, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n", sensor_data->cliff_left_signal, sensor_data->cliff_frontleft_signal, sensor_data->cliff_frontright_signal, sensor_data->cliff_right_signal);
+	sprintf(cliffSignals, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n\r\n", sensor_data->cliff_left_signal, sensor_data->cliff_frontleft_signal, sensor_data->cliff_frontright_signal, sensor_data->cliff_right_signal);
 	
 	for(int i = 0; i < strlen(bumpSensors); i++) {
 		USART_Transmit(bumpSensors[i]);
@@ -111,15 +121,7 @@ object_t * scanForObjects()
 {
 	int sonarDistance =0;
 	int irDistance = 0;
-	/*
-	char heading[]="\r\nDegrees\t     IRDistance\tSonarDistance";   //   \r\n for new line, \t and spaces to line up text and numbers on output
-	char output[50];
-	*/
 	int currObjectIndex = -1;
-	//int currDiam = 0;
-	//int smallestObjectIndex = 0;
-	//int smallestDiam = 0;
-	//int smallestLocation = 0;
 	int inObject = 0;
 	int lastIRDistance = 0;
 	int firstDegrees = 0;
@@ -130,13 +132,7 @@ object_t * scanForObjects()
 	object_t *objects = malloc(sizeof(object_t) * 10);
 
 	while(degrees <= 180)
-    {
-		/*
-		for(int i = 0; i < strlen(heading); i++) {     //  Put this inside loop so it would reprint for each iteration
-			USART_Transmit(heading[i]);
-		}
-		*/
-		
+    {	
 		move_servo(degrees);
 		wait_ms(800);									//  Allows time for servo to move back to the 0 position
 		while (degrees <= 180) {
@@ -144,14 +140,6 @@ object_t * scanForObjects()
 			move_servo(degrees);
 			sonarDistance = getPingDistance();
 			irDistance = getIrDistance();			
-			
-			/*
-			sprintf(output,"\r\n%d\t\t%d\t\t%d", degrees, irDistance, sonarDistance);  //  \r\n is new line characters. \t is used to line up numbers 
-					
-			for(int i = 0; i < strlen(output); i++){		//  Print output data
-				USART_Transmit(output[i]);				
-			}											
-			*/
 							
 			if(irDistance <= 100 && inObject == 0){			// Going into object
 				inObject = 1;								// Sensor is now detecting an object
@@ -164,7 +152,8 @@ object_t * scanForObjects()
 			if(irDistance > 100 && inObject == 1){			// Going out of object	
 				degreeWidth = abs(firstDegrees - degrees);	
 				objects[currObjectIndex].location = (firstDegrees + degrees) / 2;
-				objects[currObjectIndex].diameter = (sqrt(2*pow(lastSonarDistance,2) - 2*pow(lastSonarDistance,2) * cos(degreeWidth)) / 5.5);   //Actual diameter calculation						
+				objects[currObjectIndex].diameter = (sqrt(2*pow(lastSonarDistance,2) - 2*pow(lastSonarDistance,2) * cos(degreeWidth)) / 5.5);   //Actual diameter calculation	
+				objects[currObjectIndex].distance = lastSonarDistance;					
 				inObject = 0;											//Sensor is no longer on an object
 			}	
 		
@@ -173,14 +162,9 @@ object_t * scanForObjects()
 		}
     }
 	
-	char heading[] = "Found objects\r\n";
-	for(int i = 0; i < strlen(heading); i++) {     
-		USART_Transmit(heading[i]);
-	}
-	
 	for (int i = 0; i < currObjectIndex; i++) {
-		char output[30];
-		sprintf(output, "Diameter: %2d Angle: %3d\r\n", objects[i].diameter, objects[i].location);
+		char output[70];
+		sprintf(output, "Distance: %-3d cm Diameter: %-2d cm Angle: %-3d degrees\r\n", objects[i].distance, objects[i].diameter, objects[i].location);
 		
 		for(int i = 0; i < strlen(output); i++){		//  Transmit object data
 			USART_Transmit(output[i]);
@@ -188,3 +172,4 @@ object_t * scanForObjects()
 	}
 	return objects;
 }
+
