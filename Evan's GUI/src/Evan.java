@@ -2,11 +2,14 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
+import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.fazecast.jSerialComm.*;
@@ -15,9 +18,18 @@ public class Evan {
 
 	public static void main(String[] args) 
 	{
+		SerialPort[] ports = SerialPort.getCommPorts();
+		for(int i = 0; i < ports.length; i++) {
+			System.out.println(ports[i].getSystemPortName());
+		}
+				
+		SerialPort port = SerialPort.getCommPort("COM8");
+		port.setComPortParameters(38400, 8, 2, SerialPort.NO_PARITY);
+		port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_SEMI_BLOCKING, 0, 0);
+		System.out.println(port.openPort());
+		
 		// Create and configure window
 		JFrame window = new JFrame();
-		//GridLayout layout = new GridLayout(2,3);
 		window.setTitle("The Amazing GUI of Evan");
 		window.setSize(700, 400);
 		window.setLayout(null);
@@ -26,8 +38,9 @@ public class Evan {
 		JLabel moveLabel = new JLabel("Move (cm):");
 		JLabel rotateLabel = new JLabel("Rotate (degrees):");
 		JLabel scanLabel = new JLabel("Scan for objects");
-		JLabel objectsLabel = new JLabel("Found objects");
+		JLabel objectsLabel = new JLabel("Found objects and Sensor Values");
 		
+		/*
 		JLabel bumpSensorsLabel = new JLabel("Bump Sensor (r, l) values:");
 		JLabel cliffSensorsLabel = new JLabel("Cliff Sensor (l, fl, fr, r) values:");
 		JLabel cliffSignalsLabel = new JLabel ("Cliff Sensor (l, fl, fr, r) values:");
@@ -35,7 +48,7 @@ public class Evan {
 		JLabel bumpSensorValues = new JLabel("R: 0, L: 0");
 		JLabel cliffSensorsValues = new JLabel("L: 0, FL: 0, FR: 0, R: 0");
 		JLabel cliffSignalsValues = new JLabel ("L: 0, FL: 0, FR: 0, R: 0");
-		
+		*/
 		JButton moveButton = new JButton("Move!");
 		JButton rotateButton = new JButton("Rotate!");
 		JButton scanButton = new JButton("Scan!");
@@ -43,9 +56,8 @@ public class Evan {
 		JFormattedTextField moveField = new JFormattedTextField();
 		JFormattedTextField rotateField = new JFormattedTextField();
 		
-		JTextField objectDisplay = new JTextField();
+		JTextArea objectDisplay = new JTextArea();
 		
-		objectDisplay.setEnabled(false);
 		moveField.setValue(new Integer(90));
 		moveField.setColumns(5);
 		rotateField.setValue(50);
@@ -53,46 +65,30 @@ public class Evan {
 		
 		moveButton.addActionListener(new ActionListener(){
 			@Override public void actionPerformed(ActionEvent arg0) {
-				SerialPort port = SerialPort.getCommPort("COM8");
-				port.setComPortParameters(38400, 8, 2, SerialPort.NO_PARITY);
-				port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_SEMI_BLOCKING, 0, 0);
-				if (port.openPort()) {
-					
-					String outputString = "m" + moveField.getValue();
-					System.out.println(outputString);
-					byte toSend[] = outputString.getBytes();
-					port.writeBytes(toSend, toSend.length);
-				} 
+				String outputString = "m" + moveField.getValue();
+				System.out.println(outputString);
+				byte toSend[] = outputString.getBytes();
+				port.writeBytes(toSend, toSend.length);
 			}
 		});
 		
 		rotateButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
-				SerialPort port = SerialPort.getCommPort("COM8");
-				port.setComPortParameters(38400, 8, 2, SerialPort.NO_PARITY);
-				port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_SEMI_BLOCKING, 0, 0);
-				if (port.openPort()) {
-					
-					String outputString = "r" + rotateField.getValue();
-					System.out.println(outputString);
-					byte toSend[] = outputString.getBytes();
-					port.writeBytes(toSend, toSend.length);
-				} 
+				String outputString = "r" + rotateField.getValue();
+				System.out.println(outputString);
+				byte toSend[] = outputString.getBytes();
+				port.writeBytes(toSend, toSend.length);
+
 			}
 		});
 		
 		scanButton.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
-				SerialPort port = SerialPort.getCommPort("COM8");
-				port.setComPortParameters(38400, 8, 2, SerialPort.NO_PARITY);
-				port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_SEMI_BLOCKING, 0, 0);
-				if (port.openPort()) {
-					
-					String outputString = "s";
-					System.out.println(outputString);
-					byte toSend[] = outputString.getBytes();
-					port.writeBytes(toSend, toSend.length);
-				} 
+				objectDisplay.setText("");
+				String outputString = "s";
+				System.out.println(outputString);
+				byte toSend[] = outputString.getBytes();
+				port.writeBytes(toSend, toSend.length);
 			}
 		});
 	
@@ -107,7 +103,7 @@ public class Evan {
 		window.add(scanButton);
 		window.add(objectsLabel);
 		window.add(objectDisplay);
-		
+		/*
 		window.add(bumpSensorsLabel);
 		window.add(cliffSensorsLabel);
 		window.add(cliffSignalsLabel);
@@ -115,7 +111,7 @@ public class Evan {
 		window.add(bumpSensorValues);
 		window.add(cliffSensorsValues);
 		window.add(cliffSignalsValues);
-		
+		*/
 		Insets insets = window.getInsets();
 		Dimension size = rotateLabel.getPreferredSize();
 		
@@ -140,7 +136,7 @@ public class Evan {
 		size = objectsLabel.getPreferredSize();
 		objectsLabel.setBounds(10 + insets.left, 10 + insets.top + scanButton.getY() + scanButton.getHeight(), size.width, size.height);
 		objectDisplay.setBounds(10 + insets.left, 10 + insets.top + objectsLabel.getY() + objectsLabel.getHeight(), 400, 200);
-		
+		/*
 		size = bumpSensorsLabel.getPreferredSize();
 		bumpSensorsLabel.setBounds(30 + rotateButton.getX() + rotateButton.getWidth(), 10 + insets.top, size.width, size.height);
 		
@@ -153,12 +149,11 @@ public class Evan {
 		bumpSensorValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 10 + insets.top, 200, size.height);
 		cliffSensorsValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 20 + insets.top + rotateButton.getHeight(), 200, size.height);
 		cliffSignalsValues.setBounds(25 + bumpSensorsLabel.getX() + bumpSensorsLabel.getWidth(), 10 + insets.top + moveButton.getY() + moveButton.getHeight(), 200, size.height);
-		
+		*/
 		window.setVisible(true);
 		
-		SerialPort port8 = SerialPort.getCommPort("COM8");
-		port8.openPort();
-		port8.addDataListener(new SerialPortDataListener() {
+		
+		port.addDataListener(new SerialPortDataListener() {
 			@Override public int getListeningEvents() {
 				return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
 			}
@@ -166,21 +161,14 @@ public class Evan {
 				if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
 					return;
 				}
-				byte[] newData = new byte[port8.bytesAvailable()];
-				int numRead = port8.readBytes(newData, newData.length);
+				
+				byte[] newData = new byte[port.bytesAvailable()];
+				int numRead = port.readBytes(newData, newData.length);
 				System.out.println("Read " + numRead + " bytes.");
+				System.out.println(new String(newData));
+				objectDisplay.append(new String(newData));
 			}
 		});
-		
-		/*
-		Thread readThread = new Thread() {
-			@Override public void run() {
-				try {readThread.sleep(100);} catch(Exception e) {}
-				
-				
-			}
-		};
-		*/
 	}
 
 }
