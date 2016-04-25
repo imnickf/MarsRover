@@ -4,48 +4,62 @@
 /// Blocks for a specified number of milliseconds
 void wait_ms(unsigned int time_val);
 
-/// Shaft encoder initialization
-void shaft_encoder_init(void);
-
-/// Shaft encoder read function
-char read_shaft_encoder(void);
-
-/// Initialize Stepper Motor
-void stepper_init(void);
-
-/// Stepper motor move function
-void move_stepper_motor_by_step(int num_steps, int direction);
-
-/// Initialize PORTC, which is used by the push buttons
-void init_push_buttons(void);
-
-/// Return the position of button being pushed
 /**
- * Return the position of button being pushed.
- * @return the position of the button being pushed.  A 1 is the rightmost button.  0 indicates no button being pressed
+ *  Waits until USART has recieved a character and then returns that character
+ *
+ *  @return the recieved character 
  */
-char read_push_buttons(void);
+unsigned char USART_Receive(void);
 
-unsigned char USART_Receive( void );
-
+/// Initalize USART registers
 void USART_init();
 
+/**
+ *  Waits until USART has finished trasmitting and is ready to trasmit again,
+ *  then sends the provided character.
+ *
+ *  @param data the character to be transmitted
+ */
 void USART_Transmit( unsigned char data );
 
+/**
+ *  Rotates the servo on the iRobot Create to a specified degree
+ *
+ *  @param degree angle to rotate the servo to
+ */
 int move_servo(int degree);
 
+/// Initalize Timer 3 registers
 void timer3_init(void);
 
+/// Send pulse on wire to control Ping sensor
 void send_pulse(void);
 
+/// Initalize Ping sonar sensor
 void pinginit(void);
 
+/**
+ *  Returns the distance of an object based on the Ping sensor reading
+ *
+ *  @return distance in centimeters of detected object
+ */
 int getPingDistance(void);
 
+/// Initalize Analog-Digital Conversion registers
 void ADC_init(void);
 
+/**
+ *  Waits until current conversion has finished then converts current analog signal to digital 
+ *
+ *  @return digital integer value of the analog signal between 0-1023 
+ */
 int ADC_read(void);
 
+/**
+ *  Returns the distance of an object based on the IR sensor reaing 
+ *
+ *  @return distance in centimeters of detected object
+ */
 int getIrDistance(void);
 
 #endif
