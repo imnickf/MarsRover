@@ -1,18 +1,14 @@
 
 /**
- * util.c: utility functions for the Atmel platform
+ * util.c: utility functions for the Atmega 128
  * 
- * For an overview of how timer based interrupts work, see
- * page 111 and 133-137 of the Atmel Mega128 User Guide
- *
- * @author Zhao Zhang & Chad Nelson
- * @date 06/26/2012
  */
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "util.h"
 #include <math.h>
+
 // Global used for interrupt driven delay functions
 volatile unsigned int timer2_tick;
 volatile enum {RISING,FALLING,DONE} State;
@@ -37,7 +33,7 @@ void wait_ms(unsigned int time_val)
 	timer2_stop();
 }
 
-// Start timer2
+/// Start timer2
 void timer2_start(char unit) 
 {
 	timer2_tick=0;
@@ -52,78 +48,20 @@ void timer2_start(char unit)
 	sei();
 }
 
-// Stop timer2
+/// Stop timer2
 void timer2_stop() 
 {
 	TIMSK&=~0b10000000;		//Disabling O.C. Interrupt for Timer2
 	TCCR2&=0b01111111;		//Clearing O.C. settings
 }
 
-// Interrupt handler (runs every 1 ms)
+/// Interrupt handler (runs every 1 ms)
 ISR (TIMER2_COMP_vect) 
 {
 	timer2_tick++;
 }
 
-/// Initialize PORTC to accept push buttons as input
-void init_push_buttons(void) 
-{
-	DDRC &= 0xC0;  //Setting PC0-PC5 to input
-	PORTC |= 0x3F; //Setting pins' pull up resistors
-}
-
-/// Return the position of button being pushed
-/**
- * Return the position of button being pushed.
- * @return the position of the button being pushed.  A 1 is the rightmost button.  0 indicates no button being pressed
- */
-char read_push_buttons(void) 
-{
-	if ((PINC & 0b00100000) == 0b00000000) {
-		return 6;
-	}
-	else if ((PINC & 0b00010000) == 0b00000000) {
-		return 5;
-	}
-	else if ((PINC & 0b00001000) == 0b00000000) {
-		return 4;
-	}
-	else if ((PINC & 0b00000100) == 0b00000000) {
-		return 3;
-	}
-	else if ((PINC & 0b0000010) == 0b00000000) {
-		return 2;
-	}
-	else if ((PINC & 0b00000001) == 0b00000000) {
-		return 1;
-	}
-	
-	return 0;
-}
-
-/// Initialize PORTC for input from the shaft encoder
-void shaft_encoder_init(void) 
-{
-	DDRC &= 0x3F;	//Setting PC6-PC7 to input
-	PORTC |= 0xC0;	//Setting pins' pull-up resistors
-}
-
-/// Read the shaft encoder
-/**
- * Reads the two switches of the shaft encoder and compares the values
- * to the previous read.  This function should be called very frequently
- * for the best results.
- *
- * @return a value indicating the shaft encoder has moved:
- * 0 = no rotation (switches did not change)
- * 1 = CW rotation
- * -1 = CCW rotation
- */
-char read_shaft_encoder(void) 
-{
-	return 0;
-}
-
+/// Initalize USART registers
 void USART_init()
 {
 	unsigned int baud = 34;
@@ -136,6 +74,11 @@ void USART_init()
 	UCSR0B = 0b00011000;
 }
 
+/**
+ *  Waits until USART has recieved a character and then returns that character
+ *
+ *  @return the recieved character 
+ */
 unsigned char USART_Receive( void )
 {
 	/* Wait for data to be received */
@@ -143,6 +86,13 @@ unsigned char USART_Receive( void )
 	/* Get and return received data from buffer */
 	return UDR0;
 }
+
+/**
+ *  Waits until USART has finished trasmitting and is ready to trasmit again,
+ *  then sends the provided character.
+ *
+ *  @param data the character to be transmitted
+ */
 void USART_Transmit( unsigned char data )
 {
 	/* Wait for empty transmit buffer by checking the UDRE bit */
@@ -151,7 +101,12 @@ void USART_Transmit( unsigned char data )
 	/* Put data into transmit buffer; sends the data */
 	UDR0 = data;
 }
-		
+
+/**
+ *  Rotates the servo on the iRobot Create to a specified degree
+ *
+ *  @param degree angle to rotate the servo to
+ */		
 int move_servo(int degree)
 {
 	int conv = 20*degree+800;
@@ -159,17 +114,17 @@ int move_servo(int degree)
 	return conv;
 }
 
+/// Initalize Timer 3 registers
 void timer3_init(void)
 {
 	TCCR3A = 0b00100011;
 	TCCR3B = 0b00011010;
 	OCR3A = 0b1010011111111000;
-	OCR3B = 800;	//4250=180d //3500= 135d //2600=90d //1700 = 45d //0800 = 0d
-	//wait_ms(2000);
-	//OCR3B = 0b0000011111010000;
+	OCR3B = 800;	
 	DDRE = 0b00010000;
 }
 
+/// Send pulse on wire to control Ping sensor
 void send_pulse(void)
 {
 	DDRD |=0x10;
@@ -193,12 +148,18 @@ ISR(TIMER1_CAPT_vect)
 	}
 }
 
+/// Initalize Ping sonar sensor
 void pinginit(void)
 {
 	TIFR = 0b00000000;
 	TCCR1B = 0b11000011;
 }
 
+/**
+ *  Returns the distance of an object based on the Ping sensor reading
+ *
+ *  @return distance in centimeters of detected object
+ */
 int getPingDistance(void)
 {
 	int ping =0;
@@ -224,12 +185,18 @@ int getPingDistance(void)
 	return centimeters;
 }
 
+/// Initalize Analog-Digital Conversion registers
 void ADC_init(void)
 {
 	ADMUX=0b11000010;
 	ADCSRA=0b10000111;
 }
 
+/**
+ *  Waits until current conversion has finished then converts current analog signal to digital 
+ *
+ *  @return digital integer value of the analog signal between 0-1023 
+ */
 int ADC_read(void)
 {
 	ADCSRA |= 0b01000000;
@@ -240,6 +207,11 @@ int ADC_read(void)
 int distance=0;
 int value1=0;
 
+/**
+ *  Returns the distance of an object based on the IR sensor reaing 
+ *
+ *  @return distance in centimeters of detected object
+ */
 int getIrDistance(void)
 {
 	int avgsum = 0;

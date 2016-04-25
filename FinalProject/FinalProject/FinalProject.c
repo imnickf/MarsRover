@@ -1,8 +1,8 @@
 /*
- * FinalProject.c
+ *  FinalProject.c
  *
- * Created: 4/6/2016 12:42:28 PM
- *  Author: jlt94
+ *  Created: 4/6/2016 12:42:28 PM
+ *  Author: Jason, Nick, Ashley, Nathan
  */ 
 
 
@@ -55,6 +55,11 @@ int main(void)
     }
 }
 
+/**
+ *  Gets and parses the command from the GUI to control the iRobot Create
+ *
+ *  @param sensor_data struct containing all the sensor data for the Create
+ */
 void getCommand(oi_t *sensor_data)
 {
 	unsigned char command = USART_Receive();
@@ -97,6 +102,11 @@ void getCommand(oi_t *sensor_data)
 	}
 }
 
+/**
+ *  Trasmits the values of the bump sensors, cliff sensors, and cliff signals to the GUI 
+ *
+ *  @param sensor_data struct containing all the sensor data for the Create
+ */
 void transmitSensorData(oi_t *sensor_data)
 {
 	char bumpSensors[50], cliffSensors[100], cliffSignals[100];
@@ -117,6 +127,12 @@ void transmitSensorData(oi_t *sensor_data)
 	}
 }
 
+/**
+ *  Uses the Ping and IR sensors to scan for objects in the path of the Create and then returns 
+ *  the found objects. Each object contains a diameter, distance from the Create, and an angle. 
+ *
+ *  @return the found objects 
+ */
 object_t * scanForObjects()
 {
 	int sonarDistance =0;
