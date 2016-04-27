@@ -29,6 +29,21 @@ void getCommand(oi_t *sensor_data);
 object_t * scanForObjects();
 
 unsigned long time_diff;
+/*
+int main(void){
+	lcd_init();
+	oi_t *sensor_data=oi_alloc();
+	oi_init(sensor_data);
+	oi_update(sensor_data);
+	while(1){
+		oi_update(sensor_data);
+		lprintf("cliff left %d\nclif frontleft %d\ncliff right %d\ncliff frontright %d",(sensor_data->cliff_left_signal),(sensor_data->cliff_frontleft_signal),(sensor_data->cliff_right_signal),(sensor_data->cliff_frontright_signal));
+		wait_ms(500);
+	}
+
+
+}
+*/
 
 int main(void)
 {
@@ -40,15 +55,12 @@ int main(void)
 	
 	oi_t *sensor_data = oi_alloc();
 	oi_init(sensor_data);
+	oi_update(sensor_data);
 	
-// 	unsigned char notes[12]    = {62, 67, 69, 72, 71, 69, 67, 67, 62, 67, 69, 69};
-// 	unsigned char duration[12] = {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 256};
-	
-//	unsigned char notes[26]  = {72, 67, 69, 67,  0, 72, 67, 69, 67,  0, 72, 72, 72, 72,  0, 72, 72, 72, 72,  0, 72, 71, 72, 71, 72};
-//	unsigned char duration[26]={64, 16, 16, 16, 40, 64, 16, 16, 16, 40, 8,   8, 16, 16, 16, 8,   8, 16, 16, 16, 20, 20, 32, 20, 96};
+	unsigned char notes[26]  = {72, 67, 69, 67,  0, 72, 67, 69, 67,  0, 72, 72, 72, 72,  0, 72, 72, 72, 72,  0, 72, 71, 72, 71, 72};
+	unsigned char duration[26]={64, 16, 16, 16, 40, 64, 16, 16, 16, 40, 8,   8, 16, 16, 16, 8,   8, 16, 16, 16, 20, 20, 32, 20, 96};
  		
-//	oi_load_song(0, 26, notes, duration);
-//	oi_play_song(0);
+	oi_load_song(0, 26, notes, duration);
 	
 	while(1)
     {
@@ -98,6 +110,14 @@ void getCommand(oi_t *sensor_data)
 				commandRecieved = 1;
 				free(foundObjects);
 				break;
+			case 'p':
+				oi_play_song(0);
+				commandRecieved = 1;
+				break;
+			case 'v':
+				transmitSensorData(sensor_data);
+				commandRecieved = 1;
+				break;
 			default:
 				command = USART_Receive();
 		}	
@@ -111,6 +131,7 @@ void getCommand(oi_t *sensor_data)
  */
 void transmitSensorData(oi_t *sensor_data)
 {
+	oi_update(sensor_data);
 	char bumpSensors[50], cliffSensors[100], cliffSignals[100];
 	sprintf(bumpSensors, "\r\nBump Sensor (r, l) values: R: %d, L: %d\r\n", sensor_data->bumper_right, sensor_data->bumper_left);
 	sprintf(cliffSensors, "Cliff Sensor (l, fl, fr, r) values: L: %d, FL: %d, FR: %d, R: %d\r\n", sensor_data->cliff_left, sensor_data->cliff_frontleft, sensor_data->cliff_frontright, sensor_data->cliff_right);
