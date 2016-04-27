@@ -38,6 +38,8 @@ public class Evan {
 		JButton moveButton = new JButton("Move!");
 		JButton rotateButton = new JButton("Rotate!");
 		JButton scanButton = new JButton("Scan!");
+		JButton playSongButton = new JButton("WE MADE IT!");
+		JButton sensorValueButtons = new JButton("Get Sensor Values");
 		
 		JFormattedTextField moveField = new JFormattedTextField();
 		JFormattedTextField rotateField = new JFormattedTextField();
@@ -88,6 +90,24 @@ public class Evan {
 				port.writeBytes(toSend, toSend.length);
 			}
 		});
+		
+		playSongButton.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				String outputString = "p";
+				System.out.println(outputString);
+				byte toSend[] = outputString.getBytes();
+				port.writeBytes(toSend, toSend.length);
+			}
+		});
+		
+		sensorValueButtons.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				String outputString = "v";
+				System.out.println(outputString);
+				byte toSend[] = outputString.getBytes();
+				port.writeBytes(toSend, toSend.length);
+			}
+		});
 	
 		// Add all the things to the window
 		window.add(rotateLabel);
@@ -100,6 +120,8 @@ public class Evan {
 		window.add(scanButton);
 		window.add(objectsLabel);
 		window.add(scrollDisplay);
+		window.add(playSongButton);
+		window.add(sensorValueButtons);
 	
 		Insets insets = window.getInsets();
 		Dimension size = rotateLabel.getPreferredSize();
@@ -109,6 +131,8 @@ public class Evan {
 		rotateField.setBounds(10 + rotateLabel.getX() + rotateLabel.getWidth(), 10 + insets.top, size.width, size.height);
 		size = rotateButton.getPreferredSize();
 		rotateButton.setBounds(10 + rotateField.getX() + rotateField.getWidth(), 10 + insets.top, size.width, size.height);
+		size = playSongButton.getPreferredSize();
+		playSongButton.setBounds(10 + rotateButton.getX() + rotateButton.getWidth(), 10 + insets.top, size.width, size.height);
 		
 		size = moveLabel.getPreferredSize();
 		moveLabel.setBounds(10 + insets.left, 20 + insets.top + rotateButton.getHeight(), size.width, size.height);
@@ -116,6 +140,8 @@ public class Evan {
 		moveField.setBounds(10 + rotateLabel.getX() + rotateLabel.getWidth(), 20 + insets.top + rotateButton.getHeight(), size.width, size.height);
 		size = moveButton.getPreferredSize();
 		moveButton.setBounds(10 + rotateField.getX() + rotateField.getWidth(), 20 + insets.top + rotateButton.getHeight(), size.width, size.height);
+		size = sensorValueButtons.getPreferredSize();
+		sensorValueButtons.setBounds(10 + moveButton.getX() + moveButton.getWidth(), 20 + insets.top + rotateButton.getHeight(), size.width, size.height);
 		
 		size = scanLabel.getPreferredSize();
 		scanLabel.setBounds(10 + insets.left, 10 + insets.top + moveButton.getY() + moveButton.getHeight(), size.width, size.height);
