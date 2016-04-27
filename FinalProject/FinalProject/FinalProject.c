@@ -1,8 +1,10 @@
 /*
- *  FinalProject.c
+ * FinalProject.c
  *
- *  Created: 4/6/2016 12:42:28 PM
- *  Author: Jason, Nick, Ashley, Nathan
+ * Created: 4/6/2016 12:42:28 PM
+ *  Author: jlt94
+ *
+ *	Robot #17
  */ 
 
 
@@ -39,13 +41,13 @@ int main(void)
 	oi_t *sensor_data = oi_alloc();
 	oi_init(sensor_data);
 	
-//	unsigned char notes[12]    = {98, 103, 105, 108, 107, 105, 103, 103, 98, 103, 105, 105};
-//	unsigned char duration[12] = {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 256};
+// 	unsigned char notes[12]    = {62, 67, 69, 72, 71, 69, 67, 67, 62, 67, 69, 69};
+// 	unsigned char duration[12] = {64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 256};
 	
- 	unsigned char notes[26]  = {72, 67, 69, 67,  0, 72, 67, 69, 67,  0, 72, 72, 72, 72,  0, 72, 72, 72, 72,  0, 72, 71, 72, 71, 72};
- 	unsigned char duration[26]={64, 16, 16, 16, 40, 64, 16, 16, 16, 40, 8,   8, 16, 16, 16, 8,   8, 16, 16, 16, 20, 20, 32, 20, 96};
+//	unsigned char notes[26]  = {72, 67, 69, 67,  0, 72, 67, 69, 67,  0, 72, 72, 72, 72,  0, 72, 72, 72, 72,  0, 72, 71, 72, 71, 72};
+//	unsigned char duration[26]={64, 16, 16, 16, 40, 64, 16, 16, 16, 40, 8,   8, 16, 16, 16, 8,   8, 16, 16, 16, 20, 20, 32, 20, 96};
  		
-	oi_load_song(0, 12, notes, duration);
+//	oi_load_song(0, 26, notes, duration);
 //	oi_play_song(0);
 	
 	while(1)
@@ -56,10 +58,10 @@ int main(void)
 }
 
 /**
- *  Gets and parses the command from the GUI to control the iRobot Create
- *
- *  @param sensor_data struct containing all the sensor data for the Create
- */
+*  Gets and parses the command from the GUI to control the iRobot Create
+*
+*  @param sensor_data struct containing all the sensor data for the Create
+*/
 void getCommand(oi_t *sensor_data)
 {
 	unsigned char command = USART_Receive();
@@ -103,7 +105,7 @@ void getCommand(oi_t *sensor_data)
 }
 
 /**
- *  Trasmits the values of the bump sensors, cliff sensors, and cliff signals to the GUI 
+ *  Transmits the values of the bump sensors, cliff sensors, and cliff signals to the GUI
  *
  *  @param sensor_data struct containing all the sensor data for the Create
  */
@@ -128,10 +130,10 @@ void transmitSensorData(oi_t *sensor_data)
 }
 
 /**
- *  Uses the Ping and IR sensors to scan for objects in the path of the Create and then returns 
- *  the found objects. Each object contains a diameter, distance from the Create, and an angle. 
+ *  Uses the Ping and IR sensors to scan for objects in the path of the Create and then returns
+ *  the found objects. Each object contains a diameter, distance from the Create, and an angle.
  *
- *  @return the found objects 
+ *  @return the found objects
  */
 object_t * scanForObjects()
 {
