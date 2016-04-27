@@ -6,26 +6,12 @@
 #include "movement.h"
 #include "util.h"
 
-void enter_lz(oi_t *sensor);
-
-/**
- *  Moves the iRobot Create forward a specified number of centimeters
- *
- *  @param sensor a struct containing the data from all the sensors onboard the Create
- *  @param centimeters the number of centimeters to move the Create forward
- */
 void move_forward(oi_t *sensor, int centimeters) 
 {
 	int sum = 0;
 	oi_update(sensor);
 	oi_set_wheels(200, 200); // move forward
 	while (sum < centimeters * 10) {
-/*		if(sensor->cliff_frontright_signal>650 || sensor->cliff_frontleft_signal>1050 || sensor->cliff_left_signal>650 || sensor->cliff_right_signal> 800){
-			char message[]="RED DOT -> DONE!";
-			for(int i=0;i<strlen(message);i++){USART_Transmit(message[i]);}
-			//enter_lz(sensor);
-			break;
-		} */
 		if (sensor->bumper_left==1){
 			char message[]="bumper_left";
 			for(int i=0;i<strlen(message);i++){USART_Transmit(message[i]);}
@@ -102,22 +88,25 @@ void enter_lz(oi_t *sensor)
 {
 	int sum = 0;
 	oi_set_wheels(200, 200);
-	while (sum < 100) {
-		if (sensor->bumper_left || sensor->bumper_right) {
+	while (sum < 150) {
+		if (sensor->bumper_left || sensor->bumper_right || sensor->cliff_left || sensor->cliff_right || sensor->cliff_frontleft || sensor->cliff_frontright) {
 			break;
 		}
 		oi_update(sensor);
 		sum += sensor->distance;
 	}
+	oi_set_wheels(0, 0); // stop
+	for (int i = 0; i < 4; i++)
+	{
+		oi_set_leds(1,1,255,255);
+		wait_ms(200);
+		oi_set_leds(0,0,0,0);
+		wait_ms(200);
+	}
+	oi_set_leds(1,1,0,0);
 	oi_play_song(0);
 }
 
-/**
- *  Moves the iRobot Create backward a specified number of centimeters
- *
- *  @param sensor a struct containing the data from all the sensors onboard the Create
- *  @param centimeters the number of centimeters to move the Create backward
- */
 void move_backward(oi_t *sensor, int centimeters)
 {
 	int sum = centimeters * 10;
@@ -129,12 +118,6 @@ void move_backward(oi_t *sensor, int centimeters)
 	oi_set_wheels(0, 0); // stop
 }
 
-/**
- *  Rotates the iRobot Create a specified number of degrees in the clockwise direction
- *
- *  @param sensor a struct containing the data from all the sensors onboard the Create
- *  @param degrees the number of degrees to rotate the Create clockwise
- */
 void turn_clockwise(oi_t *sensor, int degrees)
 {
 	int sum = degrees;
@@ -146,12 +129,6 @@ void turn_clockwise(oi_t *sensor, int degrees)
 	oi_set_wheels(0, 0);		// stop turning
 }
 
-/**
- *  Rotates the iRobot Create a specified number of degrees in the counter-clockwise direction
- *
- *  @param sensor a struct containing the data from all the sensors onboard the Create
- *  @param degrees the number of degrees to rotate the Create counter-clockwise
- */
 void turn_counterClockwise(oi_t *sensor, int degrees) 
 {
 	int sum = 0;

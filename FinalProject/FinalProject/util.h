@@ -1,21 +1,40 @@
 #ifndef UTIL_H
 # define UTIL_H
 
-/// Blocks for a specified number of milliseconds
+/**
+ *		@file util.h
+ *		@brief this header files will contain all required 
+ *		definitions for basic utility functions
+ *		
+ *		@author Nick, Ashley, Jason, Nathan
+ *
+ *		@date 4/27/16
+ */
+
+/**
+ *  Blocks for a specified number of milliseconds
+ *
+ *  @param time_val number of milliseconds to block
+ */
 void wait_ms(unsigned int time_val);
 
 /**
- *  Waits until USART has recieved a character and then returns that character
+ *  Waits until USART has received a character and then returns that character
  *
- *  @return the recieved character 
+ *  @return the received character 
  */
 unsigned char USART_Receive(void);
 
-/// Initalize USART registers
+
+/**
+ *  Initialize USART registers
+ *
+ *  
+ */
 void USART_init();
 
 /**
- *  Waits until USART has finished trasmitting and is ready to trasmit again,
+ *  Waits until USART has finished transmitting and is ready to transmit again,
  *  then sends the provided character.
  *
  *  @param data the character to be transmitted
@@ -29,13 +48,25 @@ void USART_Transmit( unsigned char data );
  */
 int move_servo(int degree);
 
-/// Initalize Timer 3 registers
+/**
+ *  Initialize Timer 3 registers
+ *
+ *  
+ */
 void timer3_init(void);
 
-/// Send pulse on wire to control Ping sensor
+/**
+ *  Send pulse on wire to control Ping sensor
+ *
+ *  
+ */
 void send_pulse(void);
 
-/// Initalize Ping sonar sensor
+/**
+ *  Initialize Ping sonar sensor
+ *
+ *  
+ */
 void pinginit(void);
 
 /**
@@ -45,7 +76,11 @@ void pinginit(void);
  */
 int getPingDistance(void);
 
-/// Initalize Analog-Digital Conversion registers
+/**
+ *  Initalize Analog-Digital Conversion registers
+ *
+ *  
+ */
 void ADC_init(void);
 
 /**

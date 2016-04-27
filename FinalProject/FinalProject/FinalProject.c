@@ -111,7 +111,7 @@ void getCommand(oi_t *sensor_data)
 				free(foundObjects);
 				break;
 			case 'p':
-				oi_play_song(0);
+				enter_lz(sensor_data);
 				commandRecieved = 1;
 				break;
 			case 'v':
