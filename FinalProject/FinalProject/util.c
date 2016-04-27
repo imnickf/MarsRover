@@ -19,7 +19,6 @@ volatile int update_flag =0;
 void timer2_start(char unit);
 void timer2_stop();
 
-/// Blocks for a specified number of milliseconds
 void wait_ms(unsigned int time_val) 
 {
 	//Seting OC value for time requested
@@ -33,7 +32,6 @@ void wait_ms(unsigned int time_val)
 	timer2_stop();
 }
 
-/// Start timer2
 void timer2_start(char unit) 
 {
 	timer2_tick=0;
@@ -48,20 +46,17 @@ void timer2_start(char unit)
 	sei();
 }
 
-/// Stop timer2
 void timer2_stop() 
 {
 	TIMSK&=~0b10000000;		//Disabling O.C. Interrupt for Timer2
 	TCCR2&=0b01111111;		//Clearing O.C. settings
 }
 
-/// Interrupt handler (runs every 1 ms)
 ISR (TIMER2_COMP_vect) 
 {
 	timer2_tick++;
 }
 
-/// Initalize USART registers
 void USART_init()
 {
 	unsigned int baud = 34;
@@ -74,11 +69,6 @@ void USART_init()
 	UCSR0B = 0b00011000;
 }
 
-/**
- *  Waits until USART has recieved a character and then returns that character
- *
- *  @return the recieved character 
- */
 unsigned char USART_Receive( void )
 {
 	/* Wait for data to be received */
@@ -87,12 +77,6 @@ unsigned char USART_Receive( void )
 	return UDR0;
 }
 
-/**
- *  Waits until USART has finished trasmitting and is ready to trasmit again,
- *  then sends the provided character.
- *
- *  @param data the character to be transmitted
- */
 void USART_Transmit( unsigned char data )
 {
 	/* Wait for empty transmit buffer by checking the UDRE bit */
@@ -101,12 +85,7 @@ void USART_Transmit( unsigned char data )
 	/* Put data into transmit buffer; sends the data */
 	UDR0 = data;
 }
-
-/**
- *  Rotates the servo on the iRobot Create to a specified degree
- *
- *  @param degree angle to rotate the servo to
- */		
+	
 int move_servo(int degree)
 {
 	int conv = 20*degree+800;
@@ -114,7 +93,6 @@ int move_servo(int degree)
 	return conv;
 }
 
-/// Initalize Timer 3 registers
 void timer3_init(void)
 {
 	TCCR3A = 0b00100011;
@@ -124,7 +102,6 @@ void timer3_init(void)
 	DDRE = 0b00010000;
 }
 
-/// Send pulse on wire to control Ping sensor
 void send_pulse(void)
 {
 	DDRD |=0x10;
@@ -148,18 +125,12 @@ ISR(TIMER1_CAPT_vect)
 	}
 }
 
-/// Initalize Ping sonar sensor
 void pinginit(void)
 {
 	TIFR = 0b00000000;
 	TCCR1B = 0b11000011;
 }
 
-/**
- *  Returns the distance of an object based on the Ping sensor reading
- *
- *  @return distance in centimeters of detected object
- */
 int getPingDistance(void)
 {
 	int ping =0;
@@ -185,18 +156,12 @@ int getPingDistance(void)
 	return centimeters;
 }
 
-/// Initalize Analog-Digital Conversion registers
 void ADC_init(void)
 {
 	ADMUX=0b11000010;
 	ADCSRA=0b10000111;
 }
 
-/**
- *  Waits until current conversion has finished then converts current analog signal to digital 
- *
- *  @return digital integer value of the analog signal between 0-1023 
- */
 int ADC_read(void)
 {
 	ADCSRA |= 0b01000000;
@@ -207,11 +172,7 @@ int ADC_read(void)
 int distance=0;
 int value1=0;
 
-/**
- *  Returns the distance of an object based on the IR sensor reaing 
- *
- *  @return distance in centimeters of detected object
- */
+
 int getIrDistance(void)
 {
 	int avgsum = 0;
